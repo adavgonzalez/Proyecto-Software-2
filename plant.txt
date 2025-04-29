@@ -1,0 +1,138 @@
+@startuml
+' Configuración para mejorar un poco el layout (opcional)
+left to right direction
+skinparam packageStyle rectangle
+
+package infrastructure.controller <<Node>> {
+    class UserController <<Controller>> {
+        + registerUserService : RegisterUserService
+        + registerUser(User) : ResponseEntity<User>
+    }
+    class SurveyController <<Controller>> {
+        + createSurveyService : CreateSurveyService
+        + submitSurveyResponseService : SubmitSurveyResponseService
+        + createSurvey(Survey) : ResponseEntity<Survey>
+        + submitResponse(SurveyResponse) : ResponseEntity<SurveyResponse>
+    }
+}
+
+package application.service <<Node>> {
+    class RegisterUserService <<Service>> {
+        + userRepository : UserRepository
+        + register(name, email, passwordHash) : User
+    }
+    class CreateSurveyService <<Service>> {
+        + surveyRepository : SurveyRepository
+        + createSurvey(Survey) : Survey
+    }
+    class SubmitSurveyResponseService <<Service>> {
+        + surveyResponseRepository : SurveyResponseRepository
+        + submitResponse(SurveyResponse) : SurveyResponse
+    }
+}
+
+package domain.repository <<Node>> {
+    interface UserRepository <<Repository>> {
+        +{abstract} findByEmail(String) : User
+        ' JpaRepository<User, UUID> methods
+    }
+    interface SurveyRepository <<Repository>> {
+        ' JpaRepository<Survey, Long> methods
+    }
+    interface QuestionRepository <<Repository>> {
+        ' JpaRepository<Question, Long> methods
+    }
+    interface OptionRepository <<Repository>> {
+        ' JpaRepository<Option, Long> methods
+    }
+    interface SurveyResponseRepository <<Repository>> {
+        ' JpaRepository<SurveyResponse, Long> methods
+    }
+    interface AnswerRepository <<Repository>> {
+        ' JpaRepository<Answer, Long> methods
+    }
+}
+
+package domain.model <<Node>> {
+    class User <<Entity>> {
+        + id : UUID
+        + name : String
+        + email : String
+        + passwordHash : String
+    }
+    class Survey <<Entity>> {
+        + id : UUID
+        + title : String
+        + createdAt : LocalDateTime
+        ' Relationships implied below
+    }
+    class Question <<Entity>> {
+        + id : UUID
+        + text : String
+        + questionType : QuestionType
+        ' Relationships implied below
+    }
+    class Option <<Entity>> {
+        + id : UUID
+        + text : String
+        ' Relationships implied below
+    }
+    class SurveyResponse <<Entity>> {
+        + id : UUID
+        + submittedAt : LocalDateTime
+        ' Relationships implied below
+    }
+    class Answer <<Entity>> {
+        + id : UUID
+        + answerText : String
+        ' Relationships implied below
+    }
+    enum QuestionType <<Enumeration>> {
+        SINGLE_CHOICE
+        MULTIPLE_CHOICE
+        TEXT
+    }
+}
+
+' --- Dependencias entre Paquetes ---
+UserController ..> RegisterUserService : uses
+SurveyController ..> CreateSurveyService : uses
+SurveyController ..> SubmitSurveyResponseService : uses
+
+RegisterUserService ..> UserRepository : uses
+CreateSurveyService ..> SurveyRepository : uses
+SubmitSurveyResponseService ..> SurveyResponseRepository : uses
+
+' --- Uso de Entidades ---
+UserController ..> User : Request/Response
+SurveyController ..> Survey : Request/Response
+SurveyController ..> SurveyResponse : Request/Response
+
+RegisterUserService ..> User : returns/creates
+CreateSurveyService ..> Survey : returns/uses
+SubmitSurveyResponseService ..> SurveyResponse : returns/uses
+
+' --- Relaciones del Modelo de Dominio (con Composición/Agregación) ---
+' Agregación: User "tiene" Surveys y SurveyResponses
+User "1" o-- "0..*" Survey : > creator
+User "1" o-- "0..*" SurveyResponse : > respondent
+
+' Composición: Survey "posee" Questions y SurveyResponses
+Survey "1" *-- "1..*" Question : > questions
+Survey "1" *-- "0..*" SurveyResponse : < survey
+
+' Composición: Question "posee" Options
+Question "1" *-- "0..*" Option : > options
+
+' Composición: SurveyResponse "posee" Answers
+SurveyResponse "1" *-- "1..*" Answer : > answers
+
+' Asociación: Answer se refiere a Question y Option
+Answer "1" -- "1" Question : < question
+Answer "0..1" -- "1" Option : < selectedOption
+
+' Uso: Question usa QuestionType enum
+Question ..> QuestionType : uses
+
+
+@enduml
