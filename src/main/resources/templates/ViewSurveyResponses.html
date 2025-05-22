@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Respuestas de la Encuesta</title>
+</head>
+<body>
+<h1 th:text="'Respuestas para: ' + ${survey.title}">Respuestas de la Encuesta</h1>
+<ul>
+  <li th:each="response : ${responses}">
+    <h2>Respuesta enviada el: <span th:text="${response.submittedAt}"></span></h2>
+    <ul>
+      <li th:each="answer : ${response.answers}">
+        <p>
+          <strong th:text="${answer.question.text}"></strong>:
+          <span th:if="${answer.answerText != null}" th:text="${answer.answerText}"></span>
+          <span th:if="${answer.selectedOption != null}" th:text="${answer.selectedOption.text}"></span>
+        </p>
+      </li>
+    </ul>
+  </li>
+</ul>
+<a href="/mySurveys">Volver a Mis Encuestas</a>
+</body>
+</html>

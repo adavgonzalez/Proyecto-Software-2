@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear Encuesta</title>
+</head>
+<body>
+<h1>Crear Encuesta</h1>
+<form th:action="@{/api/surveys/create}" method="post">
+    <label for="title">Título de la Encuesta:</label>
+    <input type="text" id="title" name="title" required>
+    <br>
+    <input type="hidden" name="creatorId" th:value="${userId}">
+    <button type="submit">Crear Encuesta</button>
+</form>
+</body>
+</html>

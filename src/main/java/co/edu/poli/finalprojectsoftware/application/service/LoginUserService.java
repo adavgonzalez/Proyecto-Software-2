@@ -6,13 +6,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class RegisterUserService {
+public class LoginUserService {
 
     @Autowired
     private UserRepository userRepository;
 
-    public User register(String name, String email, String passwordHash) {
-        User user = new User(name, email, passwordHash);
-        return userRepository.save(user);
+    public User login(String email, String passwordHash) {
+        return userRepository.findByEmailAndPasswordHash(email, passwordHash)
+                .orElseThrow(() -> new RuntimeException("Invalid email or password"));
     }
 }

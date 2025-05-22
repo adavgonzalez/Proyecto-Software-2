@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Encuestas Disponibles</title>
+</head>
+<body>
+<h1>Encuestas Disponibles</h1>
+<ul>
+  <li th:each="survey : ${surveys}">
+    <span th:text="${survey.title}"></span>
+    <a th:href="@{'/respondSurvey/' + ${survey.id}}">Responder</a>
+  </li>
+</ul>
+<a href="/home">Volver al Inicio</a>
+</body>
+</html>

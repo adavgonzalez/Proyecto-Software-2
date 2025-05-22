@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Añadir Pregunta</title>
+</head>
+<body>
+<h1>Añadir Pregunta</h1>
+<form th:action="@{'/api/surveys/' + ${surveyId} + '/addQuestion'}" method="post">
+  <label for="text">Texto de la Pregunta:</label>
+  <input type="text" id="text" name="text" required>
+  <label for="questionType">Tipo de Pregunta:</label>
+  <select id="questionType" name="questionType">
+    <option value="SINGLE_CHOICE">Opción Única</option>
+    <option value="MULTIPLE_CHOICE">Opción Múltiple</option>
+    <option value="TEXT">Texto</option>
+  </select>
+  <button type="submit">Añadir</button>
+</form>
+
+<!-- Mostrar opciones si la pregunta es SINGLE_CHOICE o MULTIPLE_CHOICE -->
+<div th:if="${questionType == 'SINGLE_CHOICE' || questionType == 'MULTIPLE_CHOICE'}">
+  <h2>Opciones</h2>
+  <ul>
+    <li th:each="option : ${options}">
+      <span th:text="${option.text}"></span>
+    </li>
+  </ul>
+  <form action="#" th:action="@{'/api/surveys/' + ${questionId} + '/addOption'}" method="post">
+    <label for="optionText">Texto de la Opción:</label>
+    <input type="text" id="optionText" name="text" required>
+    <button type="submit">Añadir Opción</button>
+  </form>
+</div>
+
+<a href="/mySurveys">Volver a Mis Encuestas</a>
+</body>
+</html>

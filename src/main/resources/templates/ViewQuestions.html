@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Preguntas de la Encuesta</title>
+</head>
+<body>
+<h1>Preguntas de la Encuesta</h1>
+<ul>
+  <li th:each="question : ${questions}">
+    <h2 th:text="${question.text}"></h2>
+    <p>Tipo: <span th:text="${question.questionType}"></span></p>
+    <h3 th:if="${question.questionType != T(co.edu.poli.finalprojectsoftware.domain.model.enums.QuestionType).TEXT}">Opciones:</h3>
+    <ul th:if="${question.questionType != T(co.edu.poli.finalprojectsoftware.domain.model.enums.QuestionType).TEXT}">
+      <li th:each="option : ${question.options}">
+        <span th:text="${option.text}"></span>
+      </li>
+    </ul>
+    <!-- Mostrar el formulario solo si el tipo de pregunta no es TEXT -->
+    <div th:if="${question.questionType != T(co.edu.poli.finalprojectsoftware.domain.model.enums.QuestionType).TEXT}">
+      <form th:action="@{'/api/surveys/' + ${question.id} + '/addOption'}" method="post">
+        <label for="optionText">Nueva Opción:</label>
+        <input type="text" id="optionText" name="text" required>
+        <button type="submit">Añadir Opción</button>
+      </form>
+    </div>
+  </li>
+</ul>
+<a href="/mySurveys">Volver a Mis Encuestas</a>
+</body>
+</html>

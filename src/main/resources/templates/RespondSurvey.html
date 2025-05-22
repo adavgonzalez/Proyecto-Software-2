@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Responder Encuesta</title>
+</head>
+<body>
+<h1 th:text="${survey.title}">Título de la Encuesta</h1>
+<form th:action="@{'/api/surveys/' + ${survey.id} + '/submitResponse'}" method="post">
+  <ul>
+    <li th:each="question : ${questions}">
+      <h2 th:text="${question.text}"></h2>
+      <div th:if="${question.questionType == T(co.edu.poli.finalprojectsoftware.domain.model.enums.QuestionType).TEXT}">
+        <label th:for="'answerText_' + ${question.id}">Respuesta:</label>
+        <input type="text" th:id="'answerText_' + ${question.id}" th:name="'answers[' + ${question.id} + ']'" required>
+      </div>
+      <div th:if="${question.questionType != T(co.edu.poli.finalprojectsoftware.domain.model.enums.QuestionType).TEXT}">
+        <ul>
+          <li th:each="option : ${question.options}">
+            <input type="radio" th:name="'answers[' + ${question.id} + ']'" th:value="${option.id}" required>
+            <span th:text="${option.text}"></span>
+          </li>
+        </ul>
+        <p th:if="${#lists.isEmpty(question.options)}" style="color: red;">Esta pregunta no tiene opciones configuradas.</p>
+      </div>
+    </li>
+  </ul>
+  <button type="submit">Enviar Respuestas</button>
+  <div th:if="${errorMessage}" style="color: red;">
+    <p th:text="${errorMessage}"></p>
+  </div>
+</form>
+<a href="/otherSurveys">Volver a Encuestas Disponibles</a>
+</body>
+</html>
