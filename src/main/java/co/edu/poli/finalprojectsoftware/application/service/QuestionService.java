@@ -5,7 +5,6 @@ import co.edu.poli.finalprojectsoftware.domain.model.Survey;
 import co.edu.poli.finalprojectsoftware.domain.model.enums.QuestionType;
 import co.edu.poli.finalprojectsoftware.domain.repository.QuestionRepository;
 import co.edu.poli.finalprojectsoftware.domain.repository.SurveyRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,11 +13,13 @@ import java.util.UUID;
 @Service
 public class QuestionService {
 
-    @Autowired
-    private QuestionRepository questionRepository;
+    private final QuestionRepository questionRepository;
+    private final SurveyRepository surveyRepository;
 
-    @Autowired
-    private SurveyRepository surveyRepository;
+    public QuestionService(QuestionRepository questionRepository, SurveyRepository surveyRepository) {
+        this.questionRepository = questionRepository;
+        this.surveyRepository = surveyRepository;
+    }
 
     public Question addQuestion(UUID surveyId, String text, QuestionType questionType, UUID userId) {
         Survey survey = surveyRepository.findById(surveyId)

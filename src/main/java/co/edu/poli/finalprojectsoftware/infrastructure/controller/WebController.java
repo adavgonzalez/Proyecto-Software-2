@@ -1,9 +1,8 @@
 package co.edu.poli.finalprojectsoftware.infrastructure.controller;
 
-import co.edu.poli.finalprojectsoftware.domain.model.Survey;
+import co.edu.poli.finalprojectsoftware.application.service.SurveyService;
+import co.edu.poli.finalprojectsoftware.application.service.QuestionService;
 import co.edu.poli.finalprojectsoftware.domain.model.User;
-import co.edu.poli.finalprojectsoftware.domain.repository.SurveyRepository;
-import co.edu.poli.finalprojectsoftware.domain.repository.QuestionRepository;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -15,12 +14,12 @@ import java.util.UUID;
 @Controller
 public class WebController {
 
-    private final SurveyRepository surveyRepository;
-    private final QuestionRepository questionRepository;
+    private final SurveyService surveyService;
+    private final QuestionService questionService;
 
-    public WebController(SurveyRepository surveyRepository, QuestionRepository questionRepository) {
-        this.surveyRepository = surveyRepository;
-        this.questionRepository = questionRepository;
+    public WebController(SurveyService surveyService, QuestionService questionService) {
+        this.surveyService = surveyService;
+        this.questionService = questionService;
     }
 
     @GetMapping("/login")
@@ -35,7 +34,9 @@ public class WebController {
         if (userId == null) {
             return "redirect:/login";
         }
-        model.addAttribute("userName", "Usuario"); // Cambiar por el nombre real del usuario
+        String userName = (String) session.getAttribute("userName");
+        System.out.println("userName en sesión: " + userName); // Log para depuración
+        model.addAttribute("userName", userName);
         return "Home";
     }
 
@@ -54,7 +55,7 @@ public class WebController {
         if (userId == null) {
             return "redirect:/login";
         }
-        model.addAttribute("surveys", surveyRepository.findByCreatorId(userId));
+        model.addAttribute("surveys", surveyService.getSurveysByUser(userId));
         return "MySurveys";
     }
 
@@ -74,7 +75,7 @@ public class WebController {
         if (userId == null) {
             return "redirect:/login";
         }
-        model.addAttribute("questions", questionRepository.findBySurveyId(surveyId));
+        model.addAttribute("questions", questionService.getQuestionsBySurvey(surveyId));
         return "ViewQuestions";
     }
 
@@ -84,14 +85,24 @@ public class WebController {
         if (userId == null) {
             return "redirect:/login";
         }
-        Survey survey = surveyRepository.findById(surveyId)
-                .orElseThrow(() -> new RuntimeException("Encuesta no encontrada"));
-        if (survey.getCreator().getId().equals(userId)) {
-            return "redirect:/otherSurveys";
-        }
-        model.addAttribute("survey", survey);
-        model.addAttribute("questions", questionRepository.findBySurveyId(surveyId));
+        model.addAttribute("survey", surveyService.getSurveyForResponse(surveyId, userId));
+        model.addAttribute("questions", questionService.getQuestionsBySurvey(surveyId));
         return "RespondSurvey";
     }
 
+    @GetMapping("/otherSurveys")
+    public String getOtherSurveys(HttpSession session, Model model) {
+        UUID userId = (UUID) session.getAttribute("userId");
+        if (userId == null) {
+            return "redirect:/login";
+        }
+        model.addAttribute("surveys", surveyService.getSurveysNotCreatedByUser(userId));
+        return "OtherSurveys";
+    }
+
+    @GetMapping("/logout")
+    public String logout(HttpSession session) {
+        session.invalidate(); // Invalida la sesión actual
+        return "redirect:/login"; // Redirige al login
+    }
 }

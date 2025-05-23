@@ -11,4 +11,6 @@ import java.util.UUID;
 public interface SurveyResponseRepository extends JpaRepository<SurveyResponse, Long> {
     List<SurveyResponse> findBySurveyIdAndRespondentId(UUID surveyId, UUID respondentId);
     List<SurveyResponse> findBySurveyId(UUID surveyId);
+    Optional<SurveyResponse> findById(UUID surveyResponseId);
+
 }

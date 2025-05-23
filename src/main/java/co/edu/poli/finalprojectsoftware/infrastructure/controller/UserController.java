@@ -1,7 +1,6 @@
 package co.edu.poli.finalprojectsoftware.infrastructure.controller;
 
-import co.edu.poli.finalprojectsoftware.application.service.LoginUserService;
-import co.edu.poli.finalprojectsoftware.application.service.RegisterUserService;
+import co.edu.poli.finalprojectsoftware.application.service.UserService;
 import co.edu.poli.finalprojectsoftware.domain.model.User;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.http.ResponseEntity;
@@ -12,12 +11,10 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/users")
 public class UserController {
 
-    private final RegisterUserService registerUserService;
-    private final LoginUserService loginUserService;
+    private final UserService userService;
 
-    public UserController(RegisterUserService registerUserService, LoginUserService loginUserService) {
-        this.registerUserService = registerUserService;
-        this.loginUserService = loginUserService;
+    public UserController(UserService userService) {
+        this.userService = userService;
     }
 
     @PostMapping("/register")
@@ -25,7 +22,7 @@ public class UserController {
             @RequestParam String name,
             @RequestParam String email,
             @RequestParam String passwordHash) {
-        User user = registerUserService.register(name, email, passwordHash);
+        User user = userService.registerUser(name, email, passwordHash);
         return ResponseEntity.ok(user);
     }
 
@@ -34,8 +31,13 @@ public class UserController {
             @RequestParam String email,
             @RequestParam String passwordHash,
             HttpSession session) {
-        User user = loginUserService.login(email, passwordHash);
-        session.setAttribute("userId", user.getId());
-        return "redirect:/home";
+        return userService.loginUser(email, passwordHash)
+                .map(user -> {
+                    System.out.println("Nombre del usuario autenticado: " + user.getName()); // Log para depuración
+                    session.setAttribute("userId", user.getId());
+                    session.setAttribute("userName", user.getName());
+                    return "redirect:/home";
+                })
+                .orElse("redirect:/login?error=true");
     }
 }

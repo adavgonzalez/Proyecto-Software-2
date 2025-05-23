@@ -5,7 +5,6 @@ import co.edu.poli.finalprojectsoftware.domain.model.Question;
 import co.edu.poli.finalprojectsoftware.domain.model.enums.QuestionType;
 import co.edu.poli.finalprojectsoftware.domain.repository.OptionRepository;
 import co.edu.poli.finalprojectsoftware.domain.repository.QuestionRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -13,11 +12,13 @@ import java.util.UUID;
 @Service
 public class OptionService {
 
-    @Autowired
-    private OptionRepository optionRepository;
+    private final OptionRepository optionRepository;
+    private final QuestionRepository questionRepository;
 
-    @Autowired
-    private QuestionRepository questionRepository;
+    public OptionService(OptionRepository optionRepository, QuestionRepository questionRepository) {
+        this.optionRepository = optionRepository;
+        this.questionRepository = questionRepository;
+    }
 
     public Option addOption(UUID questionId, String text, UUID userId) {
         Question question = questionRepository.findById(questionId)
@@ -33,5 +34,12 @@ public class OptionService {
 
         Option option = new Option(text, question);
         return optionRepository.save(option);
+    }
+
+    public UUID getSurveyIdByQuestionId(UUID questionId) {
+        return questionRepository.findById(questionId)
+                .orElseThrow(() -> new RuntimeException("Pregunta no encontrada"))
+                .getSurvey()
+                .getId();
     }
 }

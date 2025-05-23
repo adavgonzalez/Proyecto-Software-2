@@ -70,6 +70,8 @@ public class Survey {
         this.createdAt = createdAt;
     }
 
+
+
     public Survey() {
     }
 
